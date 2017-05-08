@@ -1,0 +1,15 @@
+{
+  "name": "criteria-filter-service",
+  "version": "0.0.1",
+  "description": "Microservice to filter scraped Immowelt data based on some criteria",
+  "main": "service.js",
+  "author": "Daniel Waller",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "fs": "0.0.1-security",
+    "method-override": "^2.3.8",
+    "request": "^2.81.0",
+    "underscore": "^1.8.3"
+  }
+}

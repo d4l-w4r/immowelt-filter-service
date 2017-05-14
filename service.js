@@ -25,13 +25,18 @@ app.use(methodOverride());
 // add a new subscriber and start populating its filter
 app.post('/api/subscriber/subscribe', function(req, res) {
   var id = req.body.subscriberId;
-  storeObj.addEntry({'id': id, 'resultQueue': []});
-  scheduleFilterTask(id);
-  res.json({"status": {"state": "success", "message": ""}, "data": []});
+  console.log(req.body);
+  if (id) {
+    storeObj.addEntry({'id': id, 'resultQueue': [], 'newest': []});
+    scheduleFilterTask(id);
+    res.json({"status": {"state": "success", "message": ""}, "data": []});
+  } else {
+    res.json({"status": {"state": "failed", "message": "Please provide a subscriberId in the body."}, "data": []});
+  }
 });
 
 var scheduleFilterTask = function(subscriberId) {
-  var delay3Minutes = 10 * 1000 * 3;
+  var delay3Minutes = 60 * 1000 * 3;
   filterObj.filter(subscriberId);
   //TODO: send filter criteria in body and pass them here
   var filterTask = setInterval(filterObj.filter, delay3Minutes, subscriberId);
@@ -44,7 +49,7 @@ app.get('/api/subscriber/:subscriberId/results', function(req, res) {
     return task['id'] == req.params['subscriberId'];
   });
   if (filterTask >= 0) {
-    res.json({"status": {"state": "success", "message": ""}, "data": storeObj.getEntry(req.params['subscriberId'])['resultQueue']});
+    res.json({"status": {"state": "success", "message": ""}, "data": storeObj.getEntry(req.params['subscriberId'])['newest']});
   } else {
     res.json({"status": {"state": "failed", "message": "You are not currently subscribed to receive news."}, "data": []})
   }

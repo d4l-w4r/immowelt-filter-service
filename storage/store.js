@@ -60,11 +60,15 @@ module.exports.Store = function() {
     var newEntries = _.chain(results).reject(function(element) {
       return _.contains(_.pluck(storedEntry['resultQueue'], 'id'), element['id']);
     }).value();
+    storedEntry['newest'] = newEntries;
     storedEntry['resultQueue'] = _.union(storedEntry['resultQueue'], newEntries);
     saveDB();
   }
 
   this.getEntry = function(id) {
-    return JSON.parse(JSON.stringify(store.db[id]));
+    var result = JSON.parse(JSON.stringify(store.db[id]['newest']));
+    store.db[id]['newest'] = [];
+    saveDB();
+    return result;
   }
 };

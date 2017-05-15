@@ -1,5 +1,6 @@
 const _ = require('underscore');
 const request = require('request');
+const timeStamp = require('time-stamp');
 
 const areas = {
 	"byName": {
@@ -131,8 +132,18 @@ module.exports.CriteriaFilter = function(storeObj) {
     return base < parameters['maxRent'];
   }
 
+	var isRecent = function(parameters, entry) {
+		if (parameters['since'] && entry['scraper-timestamp']) {
+			return timeStamp(entry['scraper-timestamp']) >= timeStamp(parameters['since']);
+		}
+		return true;
+	}
+
   var entrySatisfiesCriteria = function(entry, parameters) {
-    return entry['rooms'] >= parameters["minRooms"] && isPriceInBudget(parameters, entry['rentBase'], entry['rentTotal']) && _.contains(_.keys(areas['byZip']), entry['postalCode']);
+    return entry['rooms'] >= parameters["minRooms"]
+		&& isPriceInBudget(parameters, entry['rentBase'], entry['rentTotal'])
+		&& _.contains(_.keys(areas['byZip']), entry['postalCode'])
+		&& isRecent(parameters, entry);
   }
 
   this.filter = function(subscriberId, criteria = {"maxRent": 1900, "minRooms": 4}) {

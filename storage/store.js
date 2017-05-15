@@ -60,7 +60,7 @@ module.exports.Store = function() {
     var newEntries = _.chain(results).reject(function(element) {
       return _.contains(_.pluck(storedEntry['resultQueue'], 'id'), element['id']);
     }).value();
-    storedEntry['newest'] = newEntries;
+    storedEntry['newest'] = _.union(storedEntry['newest'], newEntries);
     storedEntry['resultQueue'] = _.union(storedEntry['resultQueue'], newEntries);
     saveDB();
   }

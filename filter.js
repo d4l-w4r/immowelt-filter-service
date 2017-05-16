@@ -105,11 +105,12 @@ const areas = {
 module.exports.CriteriaFilter = function(storeObj) {
 
   var resultStore = storeObj;
+	var dataSources = ["http://localhost:1234/api/entries", "http://localhost:1236/api/entries"];
 
-  var getRawData = function() {
+  var getRawData = function(dataSource) {
     return new Promise(function(resolve, reject) {
 
-      request("http://localhost:1234/api/entries", (error, response, body) => {
+      request(dataSource, (error, response, body) => {
         if (error) {
           reject(error);
           return;
@@ -148,14 +149,17 @@ module.exports.CriteriaFilter = function(storeObj) {
 
   this.filter = function(subscriberId, criteria = {"maxRent": 1900, "minRooms": 4}) {
 		console.log("Start filtering for subscriberId: " + subscriberId);
-    getRawData().then(function(data) {
-      var filteredData = _.filter(data, function(entry) { return entrySatisfiesCriteria(entry, criteria); });
-			console.log("Found " + filteredData.length + " items matching criteria");
-      storeObj.updateResultQueue(subscriberId, filteredData)
-    }).catch(
-    function(error) {
-      console.log(error);
-      return;
-    });
+		_.each(dataSources, function(dataSource) {
+			getRawData(dataSource).then(function(data) {
+	      var filteredData = _.filter(data, function(entry) { return entrySatisfiesCriteria(entry, criteria); });
+				console.log("Found " + filteredData.length + " items matching criteria on source " + dataSource);
+	      storeObj.updateResultQueue(subscriberId, filteredData)
+	    }).catch(
+	    function(error) {
+	      console.log(error);
+	      return;
+	    });
+		});
+
   };
 };
